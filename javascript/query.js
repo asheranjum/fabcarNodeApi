@@ -52,7 +52,7 @@ async function main() {
         // console.log('voterData');
         // const result = await contract.evaluateTransaction('createVoterObj', 2,'Asher',false);
         const result = await contract.evaluateTransaction('queryAllCars');
-        console.log(`Transaction has been evaluated, result is: ${result}`);
+        // console.log(`Transaction has been evaluated, result is: ${result}`);
 
 
         // await contract.submitTransaction('createVoterObj', 2,'Asher',false);
