@@ -37,6 +37,7 @@ rm -rf go/wallet/*
 pushd ../test-network
 ./network.sh down
 ./network.sh up createChannel -ca -s couchdb
+# ./network.sh up 
 ./network.sh deployCC -ccn fabcar -ccv 1 -cci initLedger -ccl javascript -ccp ../chaincode/fabcar/javascript/
 popd
 
