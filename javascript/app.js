@@ -9,6 +9,9 @@ const fs = require('fs')
 
 const cors = require("cors");
 const { json } = require('body-parser');
+
+var registerUser = require('./registerUser.js');
+
 //const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
 //      const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
@@ -26,6 +29,19 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 
+app.get('/api/registerAdmin', async function (req, res) {
+    try {
+       
+
+      let responseData =  registerUser.registerUser() 
+
+        res.status(200).json({ response: responseData });
+    } catch (error) {
+        console.error(`Failed to evaluate transaction: ${error}`);
+        res.status(500).json({ error: error });
+        process.exit(1);
+    }
+});
 
 app.post('/api/addvoter/', async function (req, res) {
     try {
@@ -53,14 +69,40 @@ app.post('/api/addvoter/', async function (req, res) {
         // Get the contract from the network.
         const contract = network.getContract('fabcar');
 
-        console.log(req.body);
-        // Submit the specified transaction.
-        // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
-        // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
-        await contract.submitTransaction('createVoterObj', req.body.id, req.body.name, req.body.cnic, req.body.password, req.body.isVoted, req.body.voted_at, req.body.created_at);
-        // await contract.submitTransaction('createVoterObj', 2,'Asher',false);
-        console.log('Transaction has been submitted');
-        res.send('Transaction has been submitted');
+        // console.log(req.body);
+
+        
+        const allVoterData = await contract.evaluateTransaction('queryAllVoter');
+        console.log(`Transaction has been evaluated, result is: ${allVoterData.toString()}`);
+
+        let aaryData = JSON.parse(allVoterData.toString());
+
+
+        var VoterResponseData = aaryData.filter(function (data) {
+
+            return data.Key.startsWith("VOTE");
+        });
+
+        
+        var checkVoterIFExits = VoterResponseData.filter(function (data) {
+
+            return data.Record.cnic == req.body.cnic;
+        });
+
+        if(checkVoterIFExits.length == 0)
+        {
+           
+            await contract.submitTransaction('createVoterObj', req.body.id, req.body.name, req.body.cnic, req.body.password, req.body.isVoted, req.body.voted_at, req.body.created_at);
+            // await contract.submitTransaction('createVoterObj', 2,'Asher',false);
+            console.log('Transaction has been submitted');
+            res.send('Transaction has been submitted');
+
+        }
+        else
+        {
+            res.status(200).json('CNIC already exists');
+        }
+
         // Disconnect from the gateway.
         await gateway.disconnect();
     } catch (error) {
@@ -157,8 +199,6 @@ app.post('/api/addcandidate/', async function (req, res) {
         process.exit(1);
     }
 })
-
-
 
 
 app.post('/api/voter-auth', async function (req, res) {
@@ -340,6 +380,55 @@ app.get('/api/registerdVoters', async function (req, res) {
         var responseData = aaryData.filter(function (data) {
 
             return data.Key.startsWith("VOTE");
+        });
+
+
+        res.status(200).json({ response: responseData });
+    } catch (error) {
+        console.error(`Failed to evaluate transaction: ${error}`);
+        res.status(500).json({ error: error });
+        process.exit(1);
+    }
+});
+
+app.get('/api/getInit-election', async function (req, res) {
+    try {
+        const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
+        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+        // Create a new file system based wallet for managing identities.
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        console.log(`Wallet path: ${walletPath}`);
+
+        // Check to see if we've already enrolled the user.
+        const identity = await wallet.get('appUser');
+        if (!identity) {
+            console.log('An identity for the user "appUser" does not exist in the wallet');
+            console.log('Run the registerUser.js application before retrying');
+            return;
+        }
+        // Create a new gateway for connecting to our peer node.
+        const gateway = new Gateway();
+        await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
+
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork('mychannel');
+
+        // Get the contract from the network.
+        const contract = network.getContract('fabcar');
+
+        // Evaluate the specified transaction.
+        // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
+        // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
+        const result = await contract.evaluateTransaction('queryAllVoter');
+        // console.log(JSON.parse(result)[0]["Record"]);
+        // console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+        let aaryData = JSON.parse(result.toString());
+
+
+        var responseData = aaryData.filter(function (data) {
+
+            return data.Key.startsWith("INIT");
         });
 
 
@@ -601,6 +690,171 @@ const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizatio
 } catch (error) {
         console.error(`Failed to evaluate transaction: ${error}`);
         res.status(500).json({error: error});
+        process.exit(1);
+    }
+});
+
+app.get('/api/check-unique-id/:CNIC', async function (req, res) {
+    
+    try {
+const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
+        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+// Create a new file system based wallet for managing identities.
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        console.log(`Wallet path: ${walletPath}`);
+
+        // Check to see if we've already enrolled the user.
+        const identity = await wallet.get('appUser');
+        if (!identity) {
+            console.log('An identity for the user "appUser" does not exist in the wallet');
+            console.log('Run the registerUser.js application before retrying');
+            return;
+        }
+  // Create a new gateway for connecting to our peer node.
+        const gateway = new Gateway();
+        await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
+
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork('mychannel');
+
+        // Get the contract from the network.
+        const contract = network.getContract('fabcar');
+// Evaluate the specified transaction.
+        // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
+        // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
+        const result = await contract.evaluateTransaction('queryAllVoter');
+        console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+
+        let aaryData = JSON.parse(result.toString());
+
+
+        var responseData = aaryData.filter(function (data) {
+
+            return data.Key.startsWith("VOTE");
+        });
+
+        
+        var ttttt = responseData.filter(function (data) {
+
+            return data.Record.cnic == req.params.CNIC;
+        });
+
+        if(ttttt.length == 0)
+        {
+            res.status(200).json(true);
+        }
+        else
+        {
+            res.status(200).json('CNIC already exists');
+        }
+      
+        
+
+       
+} catch (error) {
+        console.error(`Failed to evaluate transaction: ${error}`);
+        res.status(500).json({error: error});
+        process.exit(1);
+    }
+});
+
+
+app.post('/api/election-initialize/', async function (req, res) {
+    try {
+        const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
+        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+        // Create a new file system based wallet for managing identities.
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        console.log(`Wallet path: ${walletPath}`);
+
+        // Check to see if we've already enrolled the user.
+        const identity = await wallet.get('appUser');
+        if (!identity) {
+            console.log('An identity for the user "appUser" does not exist in the wallet');
+            console.log('Run the registerUser.js application before retrying');
+            return;
+        }
+        // Create a new gateway for connecting to our peer node.
+        const gateway = new Gateway();
+        await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
+
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork('mychannel');
+
+        // Get the contract from the network.
+        const contract = network.getContract('fabcar');
+
+        // console.log(req.body);
+
+       
+        // Submit the specified transaction.
+        // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
+        // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
+
+        await contract.submitTransaction('setStartElectionByID',req.body.StartelectionID, req.body.electionID , req.body.created_at);
+
+        // console.log(result);
+
+        console.log('Transaction has been submitted');
+        res.send('Transaction has been submitted');
+        // Disconnect from the gateway.
+        await gateway.disconnect();
+    } catch (error) {
+        console.error(`Failed to submit transaction: ${error}`);
+        process.exit(1);
+    }
+})
+
+
+app.get('/api/registerdElections', async function (req, res) {
+    try {
+        const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
+        const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
+        // Create a new file system based wallet for managing identities.
+        const walletPath = path.join(process.cwd(), 'wallet');
+        const wallet = await Wallets.newFileSystemWallet(walletPath);
+        console.log(`Wallet path: ${walletPath}`);
+
+        // Check to see if we've already enrolled the user.
+        const identity = await wallet.get('appUser');
+        if (!identity) {
+            console.log('An identity for the user "appUser" does not exist in the wallet');
+            console.log('Run the registerUser.js application before retrying');
+            return;
+        }
+        // Create a new gateway for connecting to our peer node.
+        const gateway = new Gateway();
+        await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
+
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork('mychannel');
+
+        // Get the contract from the network.
+        const contract = network.getContract('fabcar');
+
+        // Evaluate the specified transaction.
+        // queryCar transaction - requires 1 argument, ex: ('queryCar', 'CAR4')
+        // queryAllCars transaction - requires no arguments, ex: ('queryAllCars')
+        const result = await contract.evaluateTransaction('queryAllVoter');
+        // console.log(JSON.parse(result)[0]["Record"]);
+        // console.log(`Transaction has been evaluated, result is: ${result.toString()}`);
+        let aaryData = JSON.parse(result.toString());
+
+
+        var responseData = aaryData.filter(function (data) {
+
+            return data.Key.startsWith("EL");
+        });
+
+        
+
+      
+        res.status(200).json({ response: responseData });
+    } catch (error) {
+        console.error(`Failed to evaluate transaction: ${error}`);
+        res.status(500).json({ error: error });
         process.exit(1);
     }
 });

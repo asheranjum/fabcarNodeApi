@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+// module.exports.registerUser = function(){
+
 'use strict';
 
 const { Wallets } = require('fabric-network');
@@ -30,7 +32,9 @@ async function main() {
         const userIdentity = await wallet.get('appUser');
         if (userIdentity) {
             console.log('An identity for the user "appUser" already exists in the wallet');
-            return;
+
+            return 'An identity for the user "appUser" already exists in the wallet';
+          
         }
 
         // Check to see if we've already enrolled the admin user.
@@ -38,7 +42,7 @@ async function main() {
         if (!adminIdentity) {
             console.log('An identity for the admin user "admin" does not exist in the wallet');
             console.log('Run the enrollAdmin.js application before retrying');
-            return;
+            return  'An identity for the admin user "admin" does not exist in the wallet :::: Run the enrollAdmin.js application before retrying ';
         }
 
         // build a user object for authenticating with the CA
@@ -66,6 +70,8 @@ async function main() {
         await wallet.put('appUser', x509Identity);
         console.log('Successfully registered and enrolled admin user "appUser" and imported it into the wallet');
 
+        return 'Successfully registered and enrolled admin user "appUser" and imported it into the wallet';
+
     } catch (error) {
         console.error(`Failed to register user "appUser": ${error}`);
         process.exit(1);
@@ -73,3 +79,5 @@ async function main() {
 }
 
 main();
+
+// };
