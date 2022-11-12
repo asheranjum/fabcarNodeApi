@@ -43,6 +43,40 @@ app.get('/api/registerAdmin', async function (req, res) {
     }
 });
 
+
+app.post('/api/webportal-auth', async function (req, res) {
+    try {
+
+        var userEmail = req.body.email;
+        var password = req.body.password;
+
+        // console.log(userEmail)
+        // console.log(password)
+
+        
+        if (userEmail == 'admin@email.com' && password == 12345) {
+
+            req.body.password = '5385vnt4t97p074bv70'
+            req.body.status = 'Success'
+
+            res.status(200).json({ response: req.body });
+            res.end();
+
+        } 
+        else
+        {              
+              
+                res.status(200).json({ error: 'Credentials not verified!' });
+                res.end();
+        }
+
+    } catch (error) {
+        console.error(`Failed to evaluate transaction: ${error}`);
+        res.status(500).json({ error: error });
+        process.exit(1);
+    }
+});
+
 app.post('/api/addvoter/', async function (req, res) {
     try {
         const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
@@ -90,13 +124,12 @@ app.post('/api/addvoter/', async function (req, res) {
         });
 
         if(checkVoterIFExits.length == 0)
-        {
-           
-            await contract.submitTransaction('createVoterObj', req.body.id, req.body.name, req.body.cnic, req.body.password, req.body.isVoted, req.body.voted_at, req.body.created_at);
+        { 
+            await contract.submitTransaction('createVoterObj', req.body.id, req.body.name, req.body.cnic , req.body.template1 , req.body.template2 , req.body.fingerprintMatchStatus, req.body.password, req.body.isVoted, req.body.voted_at, req.body.created_at);
             // await contract.submitTransaction('createVoterObj', 2,'Asher',false);
             console.log('Transaction has been submitted');
             res.send('Transaction has been submitted');
-
+            
         }
         else
         {
@@ -110,8 +143,6 @@ app.post('/api/addvoter/', async function (req, res) {
         process.exit(1);
     }
 })
-
-
 
 app.post('/api/make-election/', async function (req, res) {
     try {
@@ -441,7 +472,6 @@ app.get('/api/getInit-election', async function (req, res) {
 });
 
 
-
 app.get('/api/registerdCandidates', async function (req, res) {
     try {
         const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
@@ -490,7 +520,6 @@ app.get('/api/registerdCandidates', async function (req, res) {
         process.exit(1);
     }
 });
-
 
 
 app.get('/api/registerdElections', async function (req, res) {
@@ -544,9 +573,6 @@ app.get('/api/registerdElections', async function (req, res) {
     }
 });
 
-
-
-
 app.get('/api/totalCastedVotes', async function (req, res) {
     try {
         const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
@@ -598,6 +624,7 @@ app.get('/api/totalCastedVotes', async function (req, res) {
     }
 });
 
+
 app.get('/api/election-details/:electionId', async function (req, res) {
     
     try {
@@ -646,7 +673,6 @@ const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizatio
 });
 
 
-
 app.get('/api/voter/:voterID', async function (req, res) {
     
     try {
@@ -693,6 +719,7 @@ const ccpPath = path.resolve(__dirname, '..', '..', 'test-network', 'organizatio
         process.exit(1);
     }
 });
+
 
 app.get('/api/check-unique-id/:CNIC', async function (req, res) {
     
