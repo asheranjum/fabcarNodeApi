@@ -7,11 +7,27 @@
 // module.exports.registerUser = function(){
 
 'use strict';
-
-const { Wallets } = require('fabric-network');
+const { Gateway, Wallets } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
 const path = require('path');
+
+const crypto = require('crypto');
+
+const algorithm = 'aes-256-cbc'; //Using AES encryption
+const key = crypto.randomBytes(32);
+const iv = crypto.randomBytes(16);
+
+
+//Encrypting text
+function encrypt(text) {
+    let cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(key), iv);
+    let encrypted = cipher.update(text);
+    encrypted = Buffer.concat([encrypted, cipher.final()]);
+    return { iv: iv.toString('hex'), encryptedData: encrypted.toString('hex') };
+ }
+ 
+
 
 async function main() {
     try {
@@ -68,9 +84,22 @@ async function main() {
             type: 'X.509',
         };
         await wallet.put('appUser', x509Identity);
-        console.log('Successfully registered and enrolled admin user "appUser" and imported it into the wallet');
 
-        return 'Successfully registered and enrolled admin user "appUser" and imported it into the wallet';
+        
+        // Create a new gateway for connecting to our peer node.
+        const gateway = new Gateway();
+        await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
+
+        // Get the network (channel) our contract is deployed to.
+        const network = await gateway.getNetwork('mychannel');
+
+        // Get the contract from the network.
+        const contract = network.getContract('fabcar');
+
+        await contract.submitTransaction('createAdminUserObj', "ECPANEL00", 'Asher Anjum', 'ecAdmin@gmail.com' , '0308-2826308' , "11111-1111111-1"  , "2" , 'sp_admin' , 'adminpw', "2023-01-15T21:43:31.864Z");
+        console.log('Successfully registered and enrolled as sp_admin');
+
+        return 'Successfully registered and enrolled as sp_admin';
 
     } catch (error) {
         console.error(`Failed to register user "appUser": ${error}`);

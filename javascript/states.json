@@ -1,0 +1,23 @@
+[
+    {
+        "id":"state_1",
+        "name": "Sindh"
+    },
+    {
+        "id":"state_2",
+        "name": "Balochistan"
+    },
+    {
+        "id":"state_3",
+        "name": "Punjab"
+    },
+    {
+        "id":"state_4",
+        "name": "Khyber Pakhtunkhwa"
+    },
+    {
+        "id":"state_5",
+        "name": "Gilgit Baltistan"
+    }
+
+]
