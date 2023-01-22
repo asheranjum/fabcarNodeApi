@@ -95,8 +95,7 @@ async function main() {
 
         // Get the contract from the network.
         const contract = network.getContract('fabcar');
-
-        await contract.submitTransaction('createAdminUserObj', "ECPANEL00", 'Asher Anjum', 'ecAdmin@gmail.com' , '0308-2826308' , "11111-1111111-1"  , "2" , 'sp_admin' , 'adminpw', "2023-01-15T21:43:31.864Z");
+        await contract.submitTransaction('createAdminUserObj', "ECPANEL00", 'Asher Anjum', 'ecAdmin@gmail.com' , '0308-2826308' , "11111-1111111-1" , "Sindh" , "2" , 'sp_admin' , 'ECPANEL00' ,  'adminpw', "2023-01-15T21:43:31.864Z");
         console.log('Successfully registered and enrolled as sp_admin');
 
         return 'Successfully registered and enrolled as sp_admin';

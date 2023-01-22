@@ -88,10 +88,14 @@ app.get('/api/all-data', async function (req, res) {
         let rawdata_c = fs.readFileSync('cities.json');
         let city_list = JSON.parse(rawdata_c);
 
+        let districtFile = fs.readFileSync('district.json');
+        let district_list = JSON.parse(districtFile);
+
       
         var allData = [
             {'states':states_list},
             {'cities':city_list},
+            {'district':district_list},
         ]
 
         res.status(200).json({ response: allData});
@@ -474,7 +478,7 @@ app.post('/api/registerPanelUser/', async function (req, res) {
         { 
             if(checkUserIFExitsEmail == 0)
             {
-                await contract.submitTransaction('createAdminUserObj', req.body.id, req.body.name, req.body.email , req.body.phone , req.body.cnic  , req.body.city , req.body.role , req.body.password, req.body.created_at);
+                await contract.submitTransaction('createAdminUserObj', req.body.id, req.body.name, req.body.email , req.body.phone , req.body.cnic  ,  req.body.state , req.body.city , req.body.role , req.body.user_id , req.body.password, req.body.created_at);
                 // await contract.submitTransaction('createVoterObj', 2,'Asher',false);
                 console.log('Transaction has been submitted');
                 res.send('Transaction has been submitted');
@@ -544,9 +548,12 @@ app.post('/api/addvoter/', async function (req, res) {
             return data.Record.cnic == req.body.cnic;
         });
 
+        console.log('++++++++++++++++++=================');
+        console.log(req.body);
+
         if(checkVoterIFExits.length == 0)
         { 
-            await contract.submitTransaction('createVoterObj', req.body.id, req.body.name, req.body.cnic , req.body.template1 , req.body.template2 , req.body.fingerprintMatchStatus, req.body.password, req.body.isVoted, req.body.voted_at, req.body.created_at);
+            await contract.submitTransaction('createVoterObj', req.body.id, req.body.name, req.body.cnic, req.body.phone, req.body.state , req.body.city , req.body.district , req.body.template1 , req.body.template2 , req.body.fingerprintMatchStatus, req.body.password, req.body.isVoted, req.body.user_id ,req.body.voted_at, req.body.created_at);
             // await contract.submitTransaction('createVoterObj', 2,'Asher',false);
             console.log('Transaction has been submitted');
             res.send('Transaction has been submitted');
@@ -690,7 +697,9 @@ app.post('/api/addcandidate/', async function (req, res) {
         // Submit the specified transaction.
         // createCar transaction - requires 5 argument, ex: ('createCar', 'CAR12', 'Honda', 'Accord', 'Black', 'Tom')
         // changeCarOwner transaction - requires 2 args , ex: ('changeCarOwner', 'CAR10', 'Dave')
-        await contract.submitTransaction('createCandidatesObj', req.body.candidateId, req.body.name, req.body.vison,  req.body.cnic, req.body.attacment,  req.body.password, req.body.created_at);
+
+  
+        await contract.submitTransaction('createCandidatesObj', req.body.candidateId, req.body.name, req.body.vison,  req.body.chairman_name , req.body.chairman_cnic , req.body.vice_chairman_name , req.body.vice_chairman_cnic, req.body.secretary_name, req.body.secretary_cnic, req.body.attacment,  req.body.password, req.body.user_id , req.body.created_at);
         // await contract.submitTransaction('createVoterObj', 2,'Asher',false);
         console.log('Transaction has been submitted');
         res.send('Transaction has been submitted');

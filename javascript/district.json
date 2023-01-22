@@ -1,0 +1,105 @@
+[
+    {
+        "id": "1",
+        "parent_id":"13",
+        "sdesc": "Karachi Central",
+        "ldesc": "Karachi Central",
+        "status_id": "1"
+       
+    },
+    {
+        "id": "2",
+        "parent_id":"13",
+        "sdesc": "Karachi East",
+        "ldesc": "Karachi East",
+        "status_id": "1"
+       
+    },
+    {
+        "id": "3",
+        "parent_id":"13",
+        "sdesc": "Karachi South",
+        "ldesc": "Karachi South",
+        "status_id": "1"
+       
+    },
+    {
+        "id": "4",
+        "parent_id":"13",
+        "sdesc": "Karachi West",
+        "ldesc": "Karachi West",
+        "status_id": "1"
+       
+    },
+    {
+        "id": "5",
+        "parent_id":"13",
+        "sdesc": "Kemari",
+        "ldesc": "Kemari",
+        "status_id": "1"
+       
+    },
+    {
+        "id": "6",
+        "parent_id":"13",
+        "sdesc": "Korangi",
+        "ldesc": "Korangi",
+        "status_id": "1"
+    },
+    {
+        "id": "7",
+        "parent_id":"13",
+        "sdesc": "Malir",
+        "ldesc": "Malir",
+        "status_id": "1"
+    },
+    {
+        "id": "8",
+        "parent_id":"13",
+        "sdesc": "Korangi",
+        "ldesc": "Korangi",
+        "status_id": "1"
+    },
+    {
+        "id": "9",
+        "parent_id":"9",
+        "sdesc": "Dadu",
+        "ldesc": "Dadu",
+        "status_id": "1"
+    },
+    {
+        "id": "10",
+        "parent_id":"9",
+        "sdesc": "Hyderabad",
+        "ldesc": "Hyderabad",
+        "status_id": "1"
+    },
+    {
+        "id": "11",
+        "parent_id":"9",
+        "sdesc": "Jamshoro",
+        "ldesc": "Jamshoro",
+        "status_id": "1"
+    },
+    {
+        "id": "12",
+        "parent_id":"9",
+        "sdesc": "Matiari",
+        "ldesc": "Matiari",
+        "status_id": "1"
+    },
+    {
+        "id": "9",
+        "parent_id":"9",
+        "sdesc": "Tando Allahyar",
+        "ldesc": "Tando Allahyar",
+        "status_id": "1"
+    },
+    {
+        "id": "13",
+        "parent_id":"9",
+        "sdesc": "Tando Muhammad Khan",
+        "ldesc": "Tando Muhammad Khan",
+        "status_id": "1"
+    }
+]
