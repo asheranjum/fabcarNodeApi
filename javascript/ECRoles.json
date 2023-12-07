@@ -1,22 +1,22 @@
 [
     {
-        "id":"ECRole_1",
-        "name": "Super Admin | Chief Election Commissioner Officer",
-        "role":"sp_admin",
+        "id":"MCRole_1",
+        "name": "User | Users common peoples",
+        "role":"user",
         "limit":"1",
         "disabled": true
         
     },
     {
-        "id":"ECRole_2",
-        "name": "Admin Officer | Assitstant Chief Election Officer",
-        "role":"admin",
+        "id":"MCRole_2",
+        "name": "Sub Validiator | to validiate user request ",
+        "role":"sv",
         "limit":"1"
     },
     {
-        "id":"ECRole_3",
-        "name": "State Election Officers",
-        "role":"sub_admin",
+        "id":"MCRole_3",
+        "name": "Main Validiator | to verify user and sub validiator request",
+        "role":"mv",
         "limit":"5"
     },
     {
@@ -43,5 +43,4 @@
         "role":"polling_staff",
         "limit":"5"
     }
-
 ]
